@@ -1,0 +1,44 @@
+{
+  "task": "AND",
+  "start_level": "AND",
+  "source": "reference",
+  "goal": "Logical AND of two inputs: outputs 1 only when both a and b are 1 (= NOT(NAND(a,b))).",
+  "actions": [
+    {
+      "op": "place",
+      "component": "nand",
+      "bound": "nand1"
+    },
+    {
+      "op": "place",
+      "component": "inv",
+      "bound": "nand2"
+    },
+    {
+      "op": "connect",
+      "source": "Input_a",
+      "target": "nand1.a",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "Input_b",
+      "target": "nand1.b",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "nand1.out",
+      "target": "nand2.in0",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "nand2.out",
+      "target": "Output",
+      "ok": true
+    }
+  ],
+  "verdict": "PASS",
+  "passed": true
+}

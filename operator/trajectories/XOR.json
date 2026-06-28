@@ -1,0 +1,67 @@
+{
+  "task": "XOR",
+  "start_level": "XOR",
+  "source": "reference",
+  "goal": "Exclusive-OR (XOR) of two inputs: outputs 1 when exactly one of a, b is 1 (= AND(OR(a,b), NAND(a,b))).",
+  "actions": [
+    {
+      "op": "place",
+      "component": "or",
+      "bound": "nand1"
+    },
+    {
+      "op": "place",
+      "component": "nand",
+      "bound": "nand2"
+    },
+    {
+      "op": "place",
+      "component": "and",
+      "bound": "nand3"
+    },
+    {
+      "op": "connect",
+      "source": "Input_a",
+      "target": "nand1.a",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "Input_b",
+      "target": "nand1.b",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "Input_a",
+      "target": "nand2.a",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "Input_b",
+      "target": "nand2.b",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "nand1.out",
+      "target": "nand3.a",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "nand2.out",
+      "target": "nand3.b",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "nand3.out",
+      "target": "Output",
+      "ok": true
+    }
+  ],
+  "verdict": "PASS",
+  "passed": true
+}

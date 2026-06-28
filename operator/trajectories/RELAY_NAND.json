@@ -1,0 +1,50 @@
+{
+  "task": "RELAY_NAND",
+  "start_level": "RELAY_NAND",
+  "source": "reference",
+  "goal": "NAND gate built from relays: outputs NOT(a AND b).",
+  "actions": [
+    {
+      "op": "place",
+      "component": "RELAY-OFF",
+      "bound": "relay1"
+    },
+    {
+      "op": "place",
+      "component": "RELAY-ON",
+      "bound": "relay2"
+    },
+    {
+      "op": "connect",
+      "source": "Input_a",
+      "target": "relay1.in",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "Input_b",
+      "target": "relay1.c",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "Input_V",
+      "target": "relay2.in",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "relay1.out",
+      "target": "relay2.c",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "relay2.out",
+      "target": "Output",
+      "ok": true
+    }
+  ],
+  "verdict": "PASS",
+  "passed": true
+}

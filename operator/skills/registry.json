@@ -1,0 +1,62 @@
+{
+  "INV": {
+    "file": "skill_INV.py",
+    "params": [
+      "Input",
+      "Output"
+    ],
+    "description": "Inverter (NOT gate): outputs the logical NOT of its input (0->1, 1->0). Built by placing 1 component(s) and making 3 named connection(s).",
+    "signature": "skill_INV(env, Input, Output)",
+    "source": "agent",
+    "source_trajectory": "trajectories/INV.json"
+  },
+  "RELAY_NAND": {
+    "file": "skill_RELAY_NAND.py",
+    "params": [
+      "Input_a",
+      "Input_b",
+      "Input_V",
+      "Output"
+    ],
+    "description": "NAND gate built from relays: outputs NOT(a AND b). Built by placing 2 component(s) and making 5 named connection(s).",
+    "signature": "skill_RELAY_NAND(env, Input_a, Input_b, Input_V, Output)",
+    "source": "reference",
+    "source_trajectory": "trajectories/RELAY_NAND.json"
+  },
+  "AND": {
+    "file": "skill_AND.py",
+    "params": [
+      "Input_a",
+      "Input_b",
+      "Output"
+    ],
+    "description": "Logical AND of two inputs: outputs 1 only when both a and b are 1 (= NOT(NAND(a,b))). Built by placing 2 component(s) and making 4 named connection(s).",
+    "signature": "skill_AND(env, Input_a, Input_b, Output)",
+    "source": "reference",
+    "source_trajectory": "trajectories/AND.json"
+  },
+  "OR": {
+    "file": "skill_OR.py",
+    "params": [
+      "Input_a",
+      "Input_b",
+      "Output"
+    ],
+    "description": "Logical OR of two inputs: outputs 1 when a or b (or both) is 1 (= NAND(NOT a, NOT b)). Built by placing 3 component(s) and making 5 named connection(s).",
+    "signature": "skill_OR(env, Input_a, Input_b, Output)",
+    "source": "reference",
+    "source_trajectory": "trajectories/OR.json"
+  },
+  "XOR": {
+    "file": "skill_XOR.py",
+    "params": [
+      "Input_a",
+      "Input_b",
+      "Output"
+    ],
+    "description": "Exclusive-OR (XOR) of two inputs: outputs 1 when exactly one of a, b is 1 (= AND(OR(a,b), NAND(a,b))). Built by placing 3 component(s) and making 7 named connection(s).",
+    "signature": "skill_XOR(env, Input_a, Input_b, Output)",
+    "source": "reference",
+    "source_trajectory": "trajectories/XOR.json"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "task": "INV",
+  "start_level": "INV",
+  "source": "agent",
+  "goal": "Inverter (NOT gate): outputs the logical NOT of its input (0->1, 1->0).",
+  "actions": [
+    {
+      "op": "place",
+      "component": "nand",
+      "bound": "nand1",
+      "via": "agent-drag"
+    },
+    {
+      "op": "connect",
+      "source": "Input",
+      "target": "nand1.a",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "Input",
+      "target": "nand1.b",
+      "ok": true
+    },
+    {
+      "op": "connect",
+      "source": "nand1.out",
+      "target": "Output",
+      "ok": true
+    }
+  ],
+  "passed": true,
+  "verdict": "PASS"
+}

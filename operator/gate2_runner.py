@@ -121,8 +121,9 @@ def main():
                            goal="Inverter (NOT gate): outputs the logical NOT of its input (0->1, 1->0).")
 
         # HAND OFF TO GEMINI (snapping is automatic via ZoomSnapComputer.click_at)
-        print("\n=== GEMINI AGENT START (INVERT, zoom+snap) ===")
-        agent = BrowserAgent(browser_computer=bc, query=INV_QUERY, model_name="gemini-3.5-flash")
+        model = _os.environ.get("GEMINI_MODEL", "gemini-3.5-flash")
+        print(f"\n=== GEMINI AGENT START (INVERT, zoom+snap)  model={model} ===")
+        agent = BrowserAgent(browser_computer=bc, query=INV_QUERY, model_name=model)
         try:
             agent.agent_loop(); attempted = True
         except Exception as e:
