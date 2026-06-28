@@ -322,12 +322,13 @@ ladder, revert). Remaining work is the dashboard + getting demo-ready. In order:
    3.5 for clean framing. This gates how the agent-solve story is pitched — settle it before rehearsing.
 
 1. ✅ **Minimal 3-readout dashboard — BUILT** (`operator/dashboard.py`, stdlib-only, BARE). Three readouts:
-   (1) skills-banked counter split agent/reference (**4 agent / 1 reference**), (2) steps-to-success line —
-   actions per solve from each trajectory (INV 4 → AND 6 → OR 8 → XOR 10; the agent ladder ascends), (3) referee
-   lamp — reads a run log's last STRUCTURED verdict (`referee/outcome/verdict: PASS|FAIL`, not prose), else the
-   banked invariant (all PASS → green). Run: `python operator/dashboard.py` (`--log probe/revert.log` makes the
-   lamp reflect that run — green PASS; `--watch` refreshes every 2s). For the revert demo, point `--log` at the
-   live log and the lamp flips RED on the XOR-deleted FAIL.
+   (1) skills-banked counter split agent/reference (**4 agent / 1 reference**); (2) STEPS-TO-SUCCESS — actions
+   per solve from each trajectory (INV 4 → AND 6 → OR 8 → XOR 10), framed HONESTLY as "ordered by GATE COMPLEXITY,
+   not a time series" / "scaling to harder problems, NOT rising efficiency" (the learning story is composition +
+   revert, NOT step counts — do not let this read as an efficiency curve); (3) referee lamp — reads a run log's
+   last STRUCTURED verdict (`referee/outcome/verdict: PASS|FAIL`, ignores prose), else the banked invariant
+   (all PASS → green). Default log = `operator/run.log`. Run: `python operator/dashboard.py` (`--watch` refreshes
+   every 2s; `--log <file>` points at a specific run).
 
 2. **Pre-warm verification (do RIGHT BEFORE demoing — nothing cold on stage):**
    - Endpoint health check (it stormed all day) — confirm the chosen `GEMINI_MODEL` is reachable before any live solve.
@@ -340,8 +341,14 @@ ladder, revert). Remaining work is the dashboard + getting demo-ready. In order:
    (empty-diff→fills) → banked to Atlas → retrieved → half-adder composed from skills never banked together →
    revert (delete skill_XOR ⇒ PASS becomes FAIL). Lead with the thesis: *the agent teaches itself, measurably.*
 
-4. **Rehearsal:** dry-run the narrative end-to-end on the clock (probe → gate1 → gate3_proof → agent ladder →
-   compose half-adder → revert → dashboard), timed, with the pre-warm done. Rehearse the model-framing answer (#0).
+4. ✅ **Full demo dry-run — RAN CLEAN end-to-end** (`probe/demo_dryrun.py`, the canonical "as presented" flow):
+   reach HALFADD via the 5 banked skills → compose intact **PASS** (`sum<-XOR`) → DELETE `skill_XOR` from the
+   retrievable library → re-compose **FAIL** (`sum<-OR`, the smoking gun) → RESTORE → re-compose **PASS**
+   (`sum<-XOR`). Sequence **PASS→FAIL→PASS**, clean. It writes each verdict to `operator/run.log`, so the
+   dashboard **referee lamp flips green→red→green** live (verified by replaying cumulative slices). The XOR
+   delete is the in-memory retrievable-library mutation (on-disk `skill_XOR.py` untouched → instant restore).
+   **DEMO = two panes:** A `python operator/dashboard.py --watch`  +  B `python probe/demo_dryrun.py`. Log:
+   `probe/demo_dryrun.log`. Still to do: time it on the clock + rehearse the model-framing answer (#0).
 
 - **Optional polish (not headline):** agent-source RELAY_NAND too (currently reference; it's only setup).
 - **Guards (still binding):** never log a model refusal/error as a task failure; only referee-verified skills get

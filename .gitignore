@@ -27,5 +27,8 @@ probe/*.log
 # === Local library store (regenerable embeddings cache; Atlas is the real backend) ===
 operator/skills/library_local.json
 
+# === Runtime demo log (regenerable; the dashboard referee lamp reads it) ===
+operator/run.log
+
 # === OS ===
 .DS_Store

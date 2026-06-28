@@ -83,7 +83,7 @@ def render(rows, log_path):
 
     # 2) STEPS TO SUCCESS — actions per banked skill (the ladder)
     L.append("")
-    L.append("  " + BOLD("STEPS TO SUCCESS") + DIM("   actions (place+connect) the agent took per solve"))
+    L.append("  " + BOLD("STEPS TO SUCCESS") + DIM("   actions per solve · ordered by GATE COMPLEXITY (not a time series)"))
     mx = max((r["steps"] or 0) for r in rows) or 1
     for r in rows:
         s = r["steps"]
@@ -93,7 +93,8 @@ def render(rows, log_path):
         tag = "agent" if r["source"] == "agent" else " ref "
         bar = pad("█" * int(round(s * 18 / mx)), 19)
         L.append(f"    {pad(r['name'], 11)} {color(tag)}  {color(bar)} {BOLD(str(s))}")
-    L.append("    " + DIM("└─ ascending = the agent takes on harder gates as its skill library grows"))
+    L.append("    " + DIM("└─ taller = a HARDER gate (INV→XOR) — scaling to harder problems, NOT rising efficiency."))
+    L.append("    " + DIM("   the learning/improvement story is COMPOSITION + REVERT (the library is load-bearing), not step counts."))
 
     # 3) REFEREE LAMP
     state, detail = read_lamp(rows, log_path)
