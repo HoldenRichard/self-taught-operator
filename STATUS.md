@@ -192,7 +192,11 @@ code by executing it and requiring a real referee PASS before banking. Proven en
   (default still 3.5-flash). HARNESS PATCH (vendored/gitignored `agent.py`): the LEGACY action handler now
   also dispatches the browser-computer custom tools — `gemini-2.5-computer-use` uses the legacy path, so
   without this `list_connectors`/`connect_pins` raised "Unsupported function".
-- **AGENT LADDER (`operator/gate_agent.py`) — capturing AND/OR/XOR as `source:"agent"`.** Generic runner:
+- **✅ AGENT LADDER DONE — INV/AND/OR/XOR ALL `source:"agent"`** (RELAY_NAND stays reference = setup). Captured
+  live on `gemini-2.5-computer-use-preview-10-2025` in one ladder run (`probe/agent_gates.log`): each gate
+  referee-PASS → cold-execute validated → banked. Agent trajectories: INV 1 place/3 connect, AND 2/4, OR 3/5,
+  XOR 3/7 — increasing complexity, all genuinely agent-solved (`operator/trajectories/<gate>.json`, source:agent).
+  `operator/gate_agent.py` — generic runner:
   reach each gate level via banked skills → hand to Gemini with a per-gate query (the construction +
   decide-and-name) → agent solves via the `place`/`list_connectors`/`connect_pins` tools → referee PASS →
   record its OWN trajectory → synthesize → cold-execute validate → bank `source:"agent"` (replacing the

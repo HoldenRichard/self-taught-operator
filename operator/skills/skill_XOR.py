@@ -8,7 +8,7 @@ DESCRIPTOR = {
         "Input_b",
         "Output"
     ],
-    "description": "Exclusive-OR (XOR) of two inputs: outputs 1 when exactly one of a, b is 1 (= AND(OR(a,b), NAND(a,b))). Built by placing 3 component(s) and making 7 named connection(s).",
+    "description": "Exclusive-OR (XOR) of two inputs: outputs 1 when exactly one of a, b is 1. Built by placing 3 component(s) and making 7 named connection(s).",
     "signature": "skill_XOR(env, Input_a, Input_b, Output)"
 }
 

@@ -8,7 +8,7 @@ DESCRIPTOR = {
         "Input_b",
         "Output"
     ],
-    "description": "Logical OR of two inputs: outputs 1 when a or b (or both) is 1 (= NAND(NOT a, NOT b)). Built by placing 3 component(s) and making 5 named connection(s).",
+    "description": "Logical OR of two inputs: outputs 1 when a or b (or both) is 1. Built by placing 3 component(s) and making 5 named connection(s).",
     "signature": "skill_OR(env, Input_a, Input_b, Output)"
 }
 

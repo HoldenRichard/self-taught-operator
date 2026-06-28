@@ -1,8 +1,8 @@
 {
   "task": "OR",
   "start_level": "OR",
-  "source": "reference",
-  "goal": "Logical OR of two inputs: outputs 1 when a or b (or both) is 1 (= NAND(NOT a, NOT b)).",
+  "source": "agent",
+  "goal": "Logical OR of two inputs: outputs 1 when a or b (or both) is 1.",
   "actions": [
     {
       "op": "place",
@@ -50,6 +50,6 @@
       "ok": true
     }
   ],
-  "verdict": "PASS",
-  "passed": true
+  "passed": true,
+  "verdict": "PASS"
 }

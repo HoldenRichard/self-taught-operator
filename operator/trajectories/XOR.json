@@ -1,8 +1,8 @@
 {
   "task": "XOR",
   "start_level": "XOR",
-  "source": "reference",
-  "goal": "Exclusive-OR (XOR) of two inputs: outputs 1 when exactly one of a, b is 1 (= AND(OR(a,b), NAND(a,b))).",
+  "source": "agent",
+  "goal": "Exclusive-OR (XOR) of two inputs: outputs 1 when exactly one of a, b is 1.",
   "actions": [
     {
       "op": "place",
@@ -62,6 +62,6 @@
       "ok": true
     }
   ],
-  "verdict": "PASS",
-  "passed": true
+  "passed": true,
+  "verdict": "PASS"
 }

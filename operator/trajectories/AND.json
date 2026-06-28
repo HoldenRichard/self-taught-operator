@@ -1,8 +1,8 @@
 {
   "task": "AND",
   "start_level": "AND",
-  "source": "reference",
-  "goal": "Logical AND of two inputs: outputs 1 only when both a and b are 1 (= NOT(NAND(a,b))).",
+  "source": "agent",
+  "goal": "Logical AND of two inputs: outputs 1 only when both a and b are 1.",
   "actions": [
     {
       "op": "place",
@@ -39,6 +39,6 @@
       "ok": true
     }
   ],
-  "verdict": "PASS",
-  "passed": true
+  "passed": true,
+  "verdict": "PASS"
 }

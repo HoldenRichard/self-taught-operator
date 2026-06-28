@@ -8,7 +8,7 @@ DESCRIPTOR = {
         "Input_b",
         "Output"
     ],
-    "description": "Logical AND of two inputs: outputs 1 only when both a and b are 1 (= NOT(NAND(a,b))). Built by placing 2 component(s) and making 4 named connection(s).",
+    "description": "Logical AND of two inputs: outputs 1 only when both a and b are 1. Built by placing 2 component(s) and making 4 named connection(s).",
     "signature": "skill_AND(env, Input_a, Input_b, Output)"
 }
 
