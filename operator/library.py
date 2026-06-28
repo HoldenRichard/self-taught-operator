@@ -100,8 +100,7 @@ def sync_registry(registry_path=REGISTRY):
     vecs = embed([reg[n]["description"] for n in names], input_type="document")   # ONE batched call
     cli = _client()
     coll = cli[DB_NAME][COLL_NAME]
-    idx = ensure_vector_index(coll)
-    for n, v in zip(names, vecs):
+    for n, v in zip(names, vecs):                # upsert docs FIRST so the collection exists ...
         e = reg[n]
         coll.replace_one({"_id": n}, {
             "_id": n,
@@ -110,6 +109,7 @@ def sync_registry(registry_path=REGISTRY):
             "file": e.get("file"), "source": e.get("source"),
             "source_trajectory": e.get("source_trajectory"),
             "verified_at": e.get("verified_at") or _now(), "embedding": v}, upsert=True)
+    idx = ensure_vector_index(coll)              # ... THEN create the vectorSearch index on it
     count = coll.count_documents({})
     cli.close()
     return {"index": idx, "added": names, "library_size": count}

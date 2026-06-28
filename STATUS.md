@@ -176,13 +176,45 @@ code by executing it and requiring a real referee PASS before banking. Proven en
 - **Honesty / integrity (HELD):** hand-authored solves are QUARANTINED in `probe/reference_solver.py`; the
   operator runtime (`gate2_runner`/`synth`/`trajectory`/`nandgame_env`) imports NONE of them (grep-clean).
   The two skills banked by this run are `source: "reference"` (pipeline validation only).
-- **PENDING (user condition #1):** the DEMO/banked skill must come from GEMINI'S OWN verified trajectory.
-  When the endpoint clears, `gate2_runner` records Gemini solving INV — setup reaches INV by running the
-  operator's OWN banked `skill_RELAY_NAND` (a learned skill, NEVER the scripted solver; honest level-unlock
-  was tested and does NOT work — the game re-derives progression from the real circuit) — then re-synthesizes
-  `skill_INV` (`source: "agent"`). That becomes the banked demo skill + the headline empty-diff commit.
+- **AGENT SWAP — WIRED + ARMED (waiting on the endpoint).** `gate2_runner` now records Gemini's OWN INV
+  solve (placement captured as component TYPE only via a drag hook in `ZoomSnapComputer` — never pixels, so
+  the skill stays parameterized) and, on referee PASS, synthesizes → validates (cold-execute) → banks
+  `skill_INV` as `source: "agent"`, replacing the reference skill (synth to a temp dir + validate first, so
+  a bad recording never clobbers the working skill). Setup reaches INV by running the operator's OWN banked
+  `skill_RELAY_NAND` (NEVER the scripted solver; honest progression-unlock was tested and does NOT work — the
+  game re-derives progression from the real circuit). Validated end-to-end OFFLINE by
+  `probe/test_agent_swap.py` (drove the env as Gemini would → banked `source: agent`). The auto-waiter
+  `operator/gate2_when_ready.py` is RUNNING in the background (long poll + retry-on-flap, ~5 real attempts);
+  it runs the swap whenever the endpoint clears and stops once `registry.json` shows INV `source: "agent"`.
+  This becomes the demo skill + the headline empty-diff commit. Endpoint is still storming as of this write.
+- **Secrets:** `VOYAGE_API_KEY` stored in gitignored `.env` (verified absent from every tracked file + commit;
+  `voyageai` not yet installed — do that at the library gate). Mongo Atlas conn string still needed
+  (`mongodb+srv://<user>:<URL-ENCODED-PASSWORD>@<cluster>.mongodb.net/?appName=Cluster0`, `$`→`%24`).
 - **Run it:** `computer-use-preview/.venv/bin/python probe/gate3_proof.py` (to re-run, first delete
   `operator/skills/skill_*.py` so PHASE 0's cold check holds).
+
+## ✅ LIBRARY / RETRIEVAL gate — CLOSED, live on MongoDB Atlas Vector Search
+`operator/library.py` — on a referee-VERIFIED banked skill: embed its DESCRIPTION (Voyage `voyage-3`, 1024-dim,
+batched + self-throttled for the free tier) and store `{descriptor, file, source, verified_at, embedding}` in
+Atlas; retrieve by embedding a task description + Atlas `$vectorSearch` (cosine fallback if the index is building).
+- **Retrieval PROVEN** (`probe/library_demo.py`; local-backed store = identical embeddings + ranking):
+  "build a NOT gate that inverts its input" → **INV** (0.66 vs 0.52); "construct a NAND gate out of relay
+  components" → **RELAY_NAND** (0.67 vs 0.49). Right skill each time, clean margin.
+- **Functional descriptions are load-bearing:** the skill description is the TASK GOAL ("Inverter (NOT gate):
+  outputs the logical NOT...", "NAND gate built from relays...") threaded `start_recording(goal=)` → trajectory
+  → `synth.render`. Mechanical-only descriptions ("places N components") retrieved WRONG — this was the fix.
+- **LIVE ATLAS (`probe/library_atlas.py`):** `sync_registry` upserts skills to Atlas + creates a `vectorSearch`
+  index (`skill_vec`, 1024-dim, cosine; builds in ~50s: PENDING→READY), then `retrieve` runs Atlas
+  **`$vectorSearch`** — "NOT gate"→INV (0.83 vs 0.76), "NAND from relays"→RELAY_NAND (0.84 vs 0.75); same
+  ranking as local cosine ✓. IP `<dev-public-IP>` allowlisted + active; all 3 nodes reachable (primary + 2
+  secondaries). NOTE: the index must be created AFTER the first upsert (the collection must exist) — handled.
+- **Smoke test (`probe/smoke_creds.py`):** Voyage ✓ (1024-dim); Atlas ✓ (round-trip). The `%24` password
+  encoding was correct throughout (the earlier failure was the IP allowlist, never auth).
+- **Voyage free tier = 3 req/min** (no payment method); handled by batching all skills into one embed call +
+  a 21s throttle (`VOYAGE_MIN_GAP`). Add a Voyage payment method to lift it (200M free tokens still apply),
+  then run with `VOYAGE_MIN_GAP=0`.
+- **Secrets:** `VOYAGE_API_KEY` + `MONGODB_URI` (password `$`→`%24`) in gitignored `.env`; verified absent from
+  every tracked file + commit. `pymongo` + `voyageai` installed in the harness venv.
 
 ## NEXT — GATE 3 and beyond
 1. **GATE 3 — REAL SKILL SYNTHESIS (priority #1, non-negotiable):** turn a referee-verified success
