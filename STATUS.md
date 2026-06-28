@@ -216,6 +216,30 @@ Atlas; retrieve by embedding a task description + Atlas `$vectorSearch` (cosine 
 - **Secrets:** `VOYAGE_API_KEY` + `MONGODB_URI` (password `$`→`%24`) in gitignored `.env`; verified absent from
   every tracked file + commit. `pymongo` + `voyageai` installed in the harness venv.
 
+## ✅ COMPOSITION gate — PROVEN: half-adder composed from retrieved banked skills (library is GENERATIVE)
+`operator/compose.py` — GENERIC composer: given a task spec `{inputs, outputs:{connector: sub-goal}}` (the
+logical DEFINITION of the task), for each output it RETRIEVES the best banked skill by Atlas vector similarity
+to the sub-goal (DISCOVERS it — is not told which skill) and INVOKES it on the inputs + that output. There is
+NO hardcoded circuit for any task: compose.py has zero `place_component`/`connect_pins` calls (those live only
+inside the skills; the docstring mentions them only to explain). The construction comes entirely from the
+retrieved skills.
+- **Sub-skills banked (`probe/build_gates.py`, source:reference):** reach each level via banked skills, solve
+  adaptively (place gates by TYPE, discover pins, wire), record → synth → validate (cold-exec) → bank.
+  AND=invert(nand(a,b)); OR=nand(¬a,¬b); XOR=and(or(a,b), nand(a,b)). Library now: INV, RELAY_NAND, AND, OR, XOR.
+- **Half-adder (`probe/compose_halfadder.py`):** reach HALFADD via the 5 banked skills; compose the spec
+  `{Output_l:"XOR of the inputs", Output_h:"AND of the inputs"}` → retrieved **skill_XOR** (0.79) + **skill_AND**
+  (0.79) from Atlas `$vectorSearch` → invoked → **referee PASS** (5 components; truth table a,b→h,l: 00→00,
+  01→01, 10→01, 11→10). The half-adder was NEVER banked ⇒ the library GENERATES, it doesn't look up.
+- **Layout (the hard part, solved):** `place_component` targets a LANDED position and drops at `landed/zoom`
+  (robust to the CSS-zoom offset + any zoom), strictly left→right so the left-to-right naming stays stable
+  (a grid breaks it — two gates share an x). 5 gates need a wider canvas: the droptarget extends with the
+  viewport, so the gate/composition env uses `viewport=(2600,1400)` (5 gates fit one row, wide 300px spacing,
+  reliable wiring). Relays keep their proven 1-D placement. `toolbox_item` matches the exact class token
+  (`AND` ≠ `NAND`); multi-output terminals named `Output_h`/`Output_l`.
+- **Honesty:** AND/OR/XOR are `source:"reference"` (machinery validation) — they flip to agent-sourced in the
+  disclosed pre-warm (same swap as skill_INV). The retrieve+invoke COMPOSITION mechanism is the generative proof.
+- **Run it:** `python probe/build_gates.py` (bank AND/OR/XOR), then `python probe/compose_halfadder.py`.
+
 ## NEXT — GATE 3 and beyond
 1. **GATE 3 — REAL SKILL SYNTHESIS (priority #1, non-negotiable):** turn a referee-verified success
    trajectory into a reusable, parameterized, EXECUTABLE skill = real generated code written to disk at
