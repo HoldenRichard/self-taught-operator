@@ -24,7 +24,7 @@ dashboard is stdlib (`python3` works alone).
 
 | time | beat | what you say / show | command |
 |---|---|---|---|
-| 0:00–0:15 | **Hook + artifact** | One-liner (§2). Dashboard already on screen: **5 skills banked — 4 `source:agent`** (the agent solved them itself) + 1 reference setup; lamp green. | (pane A already up) |
+| 0:00–0:15 | **Hook + artifact** | One-liner (§2). Dashboard already on screen: **5 skills banked — ALL 5 `source:agent`** (the agent solved every one itself); lamp green. | (pane A already up) |
 | 0:15–0:45 | **The loop** | "The agent solved each of these gates itself, then **wrote its own code** for them. Loop: operate → referee-verify → synthesize → bank → retrieve → compose." | — |
 | 0:45–1:20 | **Synthesis is real (technical core)** | Open a generated skill on disk: it didn't exist before the agent's solve; it's **synthesized from the agent's own verified trajectory, not retrieved**. Point at the integrity proof (empty git-diff → file appears at runtime; grep forbids any hand-written solver). | `cat operator/skills/skill_XOR.py` ; (proof: `python probe/gate3_proof.py`) |
 | 1:20–1:50 | **Composition is generative** | "The half-adder was **never banked.** The composer retrieves XOR + AND by similarity and wires them — the library *generates*, it doesn't look up." Show the half-adder result / retrieval scores. | (artifact: `probe/compose_halfadder.py`, already run) |
@@ -83,11 +83,12 @@ pixels at runtime — not a coordinate replay. The hand-written reference solver
 the operator runtime imports none of it (grep-clean).
 
 **"Did the agent really solve these, or did you script it?"**
-Four skills are `source:"agent"` in the registry (INV/AND/OR/XOR), each from a **recorded trajectory** (4/6/8/10
-actions, all verdict PASS), captured live via decide-and-name tools. **Honest caveat:** RELAY_NAND is
-`source:"reference"` — it's setup, not headline. And we *started* with a reference scaffold to validate the
-machinery before betting on the live model (the struggle story, §4) — then swapped in genuine agent solves. A
-model refusal or crash is logged "couldn't attempt," **never a fake pass.**
+**All five** skills are `source:"agent"` in the registry (INV/RELAY_NAND/AND/OR/XOR), each from a **recorded
+trajectory** (verdict PASS), captured live via decide-and-name tools — **INV + RELAY_NAND on the prize model
+`gemini-3.5-flash`**, AND/OR/XOR on 2.5-computer-use. We *started* with a reference scaffold to validate the
+machinery before betting on the live model (the struggle story, §4) — then swapped in genuine agent solves,
+ending with **all five** agent-sourced. A model refusal or crash is logged "couldn't attempt," **never a fake
+pass** (the inverter capture even pushed through 2 mid-solve 503s via retries — real).
 
 **"How does this scale to thousands of skills?"**
 The scalable parts are already the mechanism, not the count: retrieval is **vector search** (Voyage embeddings +
@@ -132,7 +133,8 @@ agent path worked. The lesson we'll tell: an infra "outage" was actually a routi
 
 **3) Reference scaffold → real agent solves.** We built and validated the *entire* synthesis + library +
 composition pipeline with a **quarantined reference solver first** (`source:"reference"`), so the machinery was
-proven before we bet on a live preview model. Then we swapped in **four genuine agent solves** (`source:"agent"`).
+proven before we bet on a live preview model. Then we swapped in genuine agent solves — ending with **all five
+skills `source:"agent"`** (INV + RELAY_NAND re-captured on the prize model 3.5 the morning of the demo).
 The scaffold never leaks into the runtime (grep-clean) — it was the test harness, not the demo.
 
 ---
@@ -158,8 +160,7 @@ The scaffold never leaks into the runtime (grep-clean) — it was the test harne
 2. **If 3.5 healthy:** recapture inverter (above) and ideally the ladder
    (`GEMINI_MODEL=gemini-3.5-flash … operator/gate_agent.py`) for prize framing. **If still storming:**
    2.5-computer-use is the proven fallback — raise eligibility with a Google/sponsor organizer.
-3. **Optional:** agent-solve RELAY_NAND for a "every skill is agent-learned" story (needs a small `gate_agent`
-   GATES entry; relay construction is flakier — **it can stay `reference`**, it's only setup).
+3. ✅ **DONE (AM):** agent-solved RELAY_NAND on 3.5 (`operator/relay_nand_agent.py`) → **whole library 5/5 `source:agent`**.
 4. **Pre-warm (always, even if storming):** `python operator/library.py sync`; smoke
    `python probe/compose_halfadder.py` + `python probe/revert_harness.py`; pre-run `python probe/demo_dryrun.py`.
 
@@ -169,7 +170,8 @@ The scaffold never leaks into the runtime (grep-clean) — it was the test harne
 freeze-mutate-revert (`demo_dryrun.py` / `revert_harness.py`), and the dashboard. **Only** the live cold-solve
 (`gate_agent.py` / `gate2_runner.py`) needs the endpoint. So if it's storming:
 - **Drop the cold-solve beat**; the deterministic revert carries the climax.
-- Show the **already-captured agent work** as proof the solves were real: the four `source:agent` trajectories
-  (`operator/trajectories/*.json`) and the ladder log (`probe/agent_gates.log`).
+- Show the **already-captured agent work** as proof the solves were real: the **five** `source:agent` trajectories
+  (`operator/trajectories/*.json`), the committed 3.5 capture logs (`probe/gate2_3.5_capture.log`,
+  `probe/relay_nand_3.5_capture.log`), and the ladder log (`probe/agent_gates.log`).
 - **Tell the storm as the struggle story (§4)** — it's a strength, not an apology. The thesis stands entirely on
   the banked artifacts.

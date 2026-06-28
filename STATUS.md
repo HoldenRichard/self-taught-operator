@@ -8,8 +8,9 @@
 **RESOLVED two ways this morning:** (1) the official hackathon guide names **"Computer Use in Gemini 3.5 Flash"**
 as a qualifying feature for the $5k prize → **`gemini-3.5-flash` computer-use IS the prize model** (no separate
 variant to chase); (2) we **captured a genuine inverter solve on `gemini-3.5-flash`** this AM (endpoint briefly
-cleared) → referee PASS *through 2 mid-solve 503s* → **`skill_INV` re-banked `source:"agent"` on 3.5**
-(provenance: `probe/gate2_3.5_capture.log`, committed; shows `model=gemini-3.5-flash` + referee PASS). Theme =
+cleared) → referee PASS *through 2 mid-solve 503s* → **`skill_INV` re-banked `source:"agent"` on 3.5**, and then
+also captured **RELAY_NAND on `gemini-3.5-flash`** → **WHOLE LIBRARY now 5/5 `source:"agent"`** (provenance:
+`probe/gate2_3.5_capture.log` + `probe/relay_nand_3.5_capture.log`, committed; both show `model=gemini-3.5-flash` + referee PASS). Theme =
 **Continual Learning via toolkit expansion**; sponsors Atlas + Voyage are first-place prizes too. Organizer
 confirmation of the exact prize model id stays a nice-to-have. Original open-question history kept below:
 - **(a) Prize eligibility — VERIFY FIRST.** The **$5k Gemini prize names "Gemini 3.5 computer-use" specifically.**
@@ -32,10 +33,12 @@ confirmation of the exact prize model id stays a nice-to-have. Original open-que
 ---
 
 ## 🌅 MORNING CAPTURE SESSION — do FIRST, all in ONE healthy-endpoint window
-**AM PROGRESS (2026-06-28):** health re-poll **6/6 clean** on 3.5 (2.5-cu also reachable, 6/6) → **inverter
-captured on `gemini-3.5-flash` → `skill_INV` banked `source:agent`** ✓ (pushed through **2 mid-solve 503s** — the
-window is FLAPPY, not stably calm). Remaining: RELAY_NAND agent-solve (assessing — relay construction is the
-flaky one, needs 2 relay TYPES + V-power wiring) + live cold-solve wiring.
+**AM PROGRESS (2026-06-28):** health re-poll **6/6 clean** on 3.5 (2.5-cu also reachable, 6/6) → **inverter +
+RELAY_NAND both captured on `gemini-3.5-flash` → both banked `source:agent`** ✓✓ (inverter pushed through **2
+mid-solve 503s**; RELAY_NAND clean, 7-action relay solve). **WHOLE LIBRARY is now 5/5 `source:agent`** — the
+clean "agent learned every skill" story, with INV + RELAY_NAND on the prize model. Remaining: live cold-solve
+wiring (item 4) + the submission-critical items (repo PUBLIC, 1-min video, rehearsal). Window is FLAPPY — the
+captures are banked, so we no longer depend on the endpoint for the headline.
 
 Every item here needs a live Gemini computer-use endpoint, so batch them into a single clean window (AM = lower
 traffic). Last night the endpoint was storming (1/5 then 0/5); don't burn into anything below a clean ~5/5.
@@ -343,8 +346,9 @@ A discarded "warmup" compose absorbs a one-off first-compose-after-chain settle 
 
 ## CURRENT STATE (one-glance, for resume)
 - **All gates DONE & committed.** Technical project complete; only the dashboard + demo polish remain (below).
-- **Library (`operator/skills/registry.json`):** INV, AND, OR, XOR = `source:"agent"` (genuinely Gemini-solved,
-  verified in registry); RELAY_NAND = `source:"reference"` (setup only). All also embedded in Atlas
+- **Library (`operator/skills/registry.json`):** ALL 5 — INV, RELAY_NAND, AND, OR, XOR = `source:"agent"`
+  (genuinely Gemini-solved, verified in registry; INV + RELAY_NAND on the prize model `gemini-3.5-flash`,
+  AND/OR/XOR on 2.5-cu). All also embedded in Atlas
   (`selftaught_operator.skills`, `skill_vec` index) + the local store. **Re-sync Atlas to the agent skills before
   a live Atlas demo:** `python operator/library.py sync` (descriptions unchanged so retrieval already returns the
   right names, but the stored `source` field is otherwise stale).

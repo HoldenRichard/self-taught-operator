@@ -20,7 +20,7 @@
     ],
     "description": "NAND gate built from relays: outputs NOT(a AND b). Built by placing 2 component(s) and making 5 named connection(s).",
     "signature": "skill_RELAY_NAND(env, Input_a, Input_b, Input_V, Output)",
-    "source": "reference",
+    "source": "agent",
     "source_trajectory": "trajectories/RELAY_NAND.json"
   },
   "AND": {
