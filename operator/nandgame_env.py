@@ -229,9 +229,11 @@ class ZoomSnapComputer(PlaywrightComputer):
         return _rc(self._page)
 
     # ---------- trajectory recording (instrumentation only; holds NO solution) ----------
-    def start_recording(self, task, start_level, source="agent"):
+    def start_recording(self, task, start_level, source="agent", goal=None):
         # source: "agent" (a genuine model solve — what we demo) or "reference" (probe scaffolding).
-        self._traj = {"task": task, "start_level": start_level, "source": source, "actions": []}
+        # goal: the FUNCTIONAL task description the agent was given (e.g. "Inverter (NOT gate)...") — the
+        # task SPEC, not the solution; used as the skill's description for semantic retrieval.
+        self._traj = {"task": task, "start_level": start_level, "source": source, "goal": goal, "actions": []}
 
     def stop_recording(self):
         self._traj = None   # e.g. before a validation cold-execute, so it doesn't pollute the trajectory

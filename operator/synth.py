@@ -56,8 +56,11 @@ def render(traj):
     name = traj["task"]
     params, body, conns = _abstract(traj)
     sig = f"skill_{name}(env, " + ", ".join(params) + ")"
-    desc = (f"Reproduces a referee-verified {name} solve: places {len(body)} component(s) and makes "
-            f"{len(conns)} named connection(s). Parameterized by external connectors {params}.")
+    mech = f"Built by placing {len(body)} component(s) and making {len(conns)} named connection(s)."
+    goal = traj.get("goal")
+    # Functional description (the task the skill achieves) leads, for semantic retrieval; mechanics follow.
+    desc = (f"{goal} {mech}" if goal
+            else f"Reproduces a referee-verified {name} solve. {mech} Parameters: {params}.")
     descriptor = {"name": name, "params": params, "description": desc, "signature": sig}
 
     L = []

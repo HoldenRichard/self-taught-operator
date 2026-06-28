@@ -23,5 +23,8 @@ probe/*.png
 probe/*.jpg
 probe/*.jpeg
 
+# === Local library store (regenerable embeddings cache; Atlas is the real backend) ===
+operator/skills/library_local.json
+
 # === OS ===
 .DS_Store

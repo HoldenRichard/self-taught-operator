@@ -71,12 +71,14 @@ def main():
     # ---- PHASE 1 — produce referee-verified trajectories (SCAFFOLDING) ---------------------
     banner("PHASE 1 — referee-verified trajectories via probe/reference_solver (SCAFFOLDING)")
     bc = fresh_env(); pg = bc._page
-    bc.start_recording("RELAY_NAND", "RELAY_NAND", source="reference")
+    bc.start_recording("RELAY_NAND", "RELAY_NAND", source="reference",
+                       goal="NAND gate built from relays: outputs NOT(a AND b).")
     v = solve_relay_nand_reference(bc); print("  RELAY_NAND solve  ->", v.status)
     assert v.passed
     print("  saved trajectory  ->", save_trajectory(bc.trajectory(), v))
     advance_to_next_level(pg); dismiss_popup(pg); bc.apply_zoom()
-    bc.start_recording("INV", "INV", source="reference")
+    bc.start_recording("INV", "INV", source="reference",
+                       goal="Inverter (NOT gate): outputs the logical NOT of its input (0->1, 1->0).")
     v_inv = solve_inverter_reference(bc); print("  INV solve         ->", v_inv.status)
     assert v_inv.passed
     p_inv = save_trajectory(bc.trajectory(), v_inv)

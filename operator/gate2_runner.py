@@ -117,7 +117,8 @@ def main():
         in_frame_check(page, "before_gemini")
 
         # RECORD Gemini's OWN solve from here on (the skill-based setup above is deliberately NOT recorded).
-        bc.start_recording("INV", "INV", source="agent")
+        bc.start_recording("INV", "INV", source="agent",
+                           goal="Inverter (NOT gate): outputs the logical NOT of its input (0->1, 1->0).")
 
         # HAND OFF TO GEMINI (snapping is automatic via ZoomSnapComputer.click_at)
         print("\n=== GEMINI AGENT START (INVERT, zoom+snap) ===")

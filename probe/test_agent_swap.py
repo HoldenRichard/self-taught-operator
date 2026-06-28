@@ -25,7 +25,7 @@ with ZoomSnapComputer() as bc:
 
     # SIMULATE Gemini's solve: placement via the env drag action (hook should record {place, nand}),
     # then wiring via connect_pins (Escape inside connect_pins cancels the placement's armed wire).
-    bc.start_recording("INV", "INV", source="agent")
+    bc.start_recording("INV", "INV", source="agent", goal="Inverter (NOT gate): outputs the logical NOT of its input (0->1, 1->0).")
     nt = toolbox_item(pg, "nand")
     bc.drag_and_drop(nt[0], nt[1], 900, 600)
     names = [c["name"] for c in bc.list_connectors()["connectors"]]
