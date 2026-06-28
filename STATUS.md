@@ -176,17 +176,34 @@ code by executing it and requiring a real referee PASS before banking. Proven en
 - **Honesty / integrity (HELD):** hand-authored solves are QUARANTINED in `probe/reference_solver.py`; the
   operator runtime (`gate2_runner`/`synth`/`trajectory`/`nandgame_env`) imports NONE of them (grep-clean).
   The two skills banked by this run are `source: "reference"` (pipeline validation only).
-- **AGENT SWAP — WIRED + ARMED (waiting on the endpoint).** `gate2_runner` now records Gemini's OWN INV
-  solve (placement captured as component TYPE only via a drag hook in `ZoomSnapComputer` — never pixels, so
-  the skill stays parameterized) and, on referee PASS, synthesizes → validates (cold-execute) → banks
-  `skill_INV` as `source: "agent"`, replacing the reference skill (synth to a temp dir + validate first, so
-  a bad recording never clobbers the working skill). Setup reaches INV by running the operator's OWN banked
-  `skill_RELAY_NAND` (NEVER the scripted solver; honest progression-unlock was tested and does NOT work — the
-  game re-derives progression from the real circuit). Validated end-to-end OFFLINE by
-  `probe/test_agent_swap.py` (drove the env as Gemini would → banked `source: agent`). The auto-waiter
-  `operator/gate2_when_ready.py` is RUNNING in the background (long poll + retry-on-flap, ~5 real attempts);
-  it runs the swap whenever the endpoint clears and stops once `registry.json` shows INV `source: "agent"`.
-  This becomes the demo skill + the headline empty-diff commit. Endpoint is still storming as of this write.
+- **✅ AGENT SWAP — DONE: `skill_INV` is `source:"agent"` (FIRST genuine agent solve, captured live).**
+  `gate2_runner` records Gemini's OWN INV solve (placement captured as component TYPE via a drag hook — never
+  pixels) and, on referee PASS, synthesizes → cold-execute validates → banks `skill_INV` as `source:"agent"`,
+  replacing the reference one (synth to a temp dir + validate first, so a bad recording never clobbers the
+  working skill). Setup reaches INV by running the operator's OWN banked `skill_RELAY_NAND` (never the scripted
+  solver). Live trace: Gemini saw the board → placed the nand → `list_connectors()` → `connect_pins("Input",
+  "nand1.a")`, `("Input","nand1.b")`, `("nand1.out","Output")` → referee PASS → banked. Trajectory in
+  `operator/trajectories/INV.json` (`source:agent`).
+- **THE GEMINI STORM WAS MODEL-SPECIFIC** (key finding): only `gemini-3.5-flash` (+ `gemini-flash-latest`,
+  which routes to it) 503'd the entire session. Healthy: `gemini-2.5-computer-use-preview-10-2025` (the
+  harness's NATIVE computer-use model — a bare ping returns 400 "wrong format", i.e. reachable),
+  `gemini-3-flash-preview`, `gemini-3.1-flash-lite`, `gemini-2.5-flash`, `gemini-2.5-pro`. `gate2_runner`'s
+  model is now configurable: `GEMINI_MODEL=gemini-2.5-computer-use-preview-10-2025 python operator/gate2_runner.py`
+  (default still 3.5-flash). HARNESS PATCH (vendored/gitignored `agent.py`): the LEGACY action handler now
+  also dispatches the browser-computer custom tools — `gemini-2.5-computer-use` uses the legacy path, so
+  without this `list_connectors`/`connect_pins` raised "Unsupported function".
+- **AGENT LADDER (`operator/gate_agent.py`) — capturing AND/OR/XOR as `source:"agent"`.** Generic runner:
+  reach each gate level via banked skills → hand to Gemini with a per-gate query (the construction +
+  decide-and-name) → agent solves via the `place`/`list_connectors`/`connect_pins` tools → referee PASS →
+  record its OWN trajectory → synthesize → cold-execute validate → bank `source:"agent"` (replacing the
+  reference) → advance. Stops on the first failure (partial capture is fine — every real agent solve counts).
+  Added a **`place(component)` agent tool** (the agent NAMES the type — the drag hook can't distinguish
+  nand/inv/and/or since NAMED_CONNECTORS_JS calls every non-relay "nandN"; `place` records the correct type).
+  Run: `GEMINI_MODEL=gemini-2.5-computer-use-preview-10-2025 python operator/gate_agent.py` (log
+  `probe/agent_gates.log`). **Check sources:** `python -c "import json;print({k:v['source'] for k,v in
+  json.load(open('operator/skills/registry.json')).items()})"`. RELAY_NAND can stay reference (setup).
+  To re-bank a gate from a fresh agent solve, just re-run; to re-bank the whole ladder, delete the gate
+  `skill_*.py` first. Goal: INV/AND/OR/XOR all `source:"agent"` so the half-adder + revert run on agent skills.
 - **Secrets:** `VOYAGE_API_KEY` stored in gitignored `.env` (verified absent from every tracked file + commit;
   `voyageai` not yet installed — do that at the library gate). Mongo Atlas conn string still needed
   (`mongodb+srv://<user>:<URL-ENCODED-PASSWORD>@<cluster>.mongodb.net/?appName=Cluster0`, `$`→`%24`).
@@ -240,15 +257,21 @@ retrieved skills.
   disclosed pre-warm (same swap as skill_INV). The retrieve+invoke COMPOSITION mechanism is the generative proof.
 - **Run it:** `python probe/build_gates.py` (bank AND/OR/XOR), then `python probe/compose_halfadder.py`.
 
-## NEXT — GATE 3 and beyond
-1. **GATE 3 — REAL SKILL SYNTHESIS (priority #1, non-negotiable):** turn a referee-verified success
-   trajectory into a reusable, parameterized, EXECUTABLE skill = real generated code written to disk at
-   runtime (NOT a hand-authored macro we retrieve). Prove **empty git diff before a cold run → it fills**.
-   Standing rule: PAUSE + show the synthesis plan before building any of it. (Plan: `GATE3_PLAN.md`.)
-2. **Atlas + Voyage skill library + retrieval** — vector search over skill descriptions (Mongo conn string
-   in gitignored `.env`, `$`→`%24`; Voyage key pending).
-3. **Composition** — a harder task (e.g. half-adder) solved by retrieving + composing banked skills.
-4. **Freeze-mutate-revert** harness — frozen seed, ≥3× each way, raw referee log (measurable improvement).
-5. **Minimal 3-readout dashboard** — skills-banked counter, steps-to-success line, referee lamp.
-- Guards: never log a model refusal/error as a task failure (#3). Tier-2 spine first; Tier-3 (MLP value
-  head) only if Tier-2 is bulletproof with ≥3.5h left.
+## NEXT  (Gate 1 ✅, Gate 2 ✅, Gate 3 synthesis ✅, library/Atlas ✅, composition ✅, agent INV ✅)
+1. **AGENT LADDER (in progress, window-dependent):** finish agent-sourcing AND/OR/XOR via
+   `operator/gate_agent.py` so INV/AND/OR/XOR are all `source:"agent"`. Capture while a Gemini model is
+   responsive (use `gemini-2.5-computer-use-preview-10-2025` — gemini-3.5-flash is the one that storms).
+2. **FREEZE-MUTATE-REVERT harness (demo climax; window-INDEPENDENT — no live endpoint needed).** Prove the
+   library is LOAD-BEARING. Use the half-adder composition (it retrieves skill_XOR + skill_AND). FROZEN SEED:
+   reach HALFADD the same way, deterministic skills, run each config ≥3×, log the RAW referee verdict:
+   - intact library → `compose` → **PASS**
+   - DELETE a banked skill (skill_XOR: remove its `skill_*.py` + registry entry + library-store record) →
+     `compose` → retrieval returns the wrong skill → **FAIL**
+   - RESTORE → `compose` → **PASS** (recover)
+   To dodge the Voyage 3-req/min cap: pre-embed the 2 fixed sub-goal queries ONCE and pass a cached-vector
+   retrieve fn into `compose(spec, env, retrieve=...)`; use the LOCAL store
+   (`operator/skills/library_local.json`) for instant delete/restore. Tier-2 revert = removing a SKILL flips
+   the operator PASS→FAIL→PASS. Emit the raw log (≥3 each of intact-PASS / deleted-FAIL / restored-PASS).
+3. **Minimal 3-readout dashboard:** skills-banked counter (split agent vs reference), steps-to-success, referee lamp.
+- Guards (still binding): never log a model refusal/error as a task failure; only referee-verified skills get
+  banked; secrets only in gitignored `.env`; the honesty line (agent operates; system only makes motor acts land).

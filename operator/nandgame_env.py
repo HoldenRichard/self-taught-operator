@@ -207,8 +207,18 @@ class ZoomSnapComputer(PlaywrightComputer):
         named = self._named_connectors()
         return {"connectors": [{"name": k, "role": v["role"]} for k, v in named.items()]}
 
+    def place(self, component: str) -> dict:
+        """Place a logic component on the board by TYPE and return its name. component is one of:
+        'nand', 'inv' (inverter/NOT), 'and', 'or', 'xor'. Refer to the placed component's pins by the
+        returned name (e.g. nand1.a, inv1.in0) — call list_connectors to see them. Use this to place
+        components (you do not need to drag)."""
+        name = self.place_component(component)
+        return {"placed": component, "name": name,
+                "note": (f"placed as '{name}'; its pins are '{name}.<pin>' — call list_connectors() to see them"
+                         if name else "placement did not register; try again")}
+
     def agent_tool_callables(self):
-        return [self.connect_pins, self.list_connectors]
+        return [self.place, self.connect_pins, self.list_connectors]
 
     # ---------- semantic placement + referee (the stable API skills are generated against) ----------
     def place_component(self, component: str) -> str:
