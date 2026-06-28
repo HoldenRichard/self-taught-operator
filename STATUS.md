@@ -27,6 +27,42 @@ tomorrow, **NOT resolved tonight**:
 
 ---
 
+## 🌅 MORNING CAPTURE SESSION — do FIRST, all in ONE healthy-endpoint window
+Every item here needs a live Gemini computer-use endpoint, so batch them into a single clean window (AM = lower
+traffic). Last night the endpoint was storming (1/5 then 0/5); don't burn into anything below a clean ~5/5.
+
+1. **Re-poll endpoint health.** `python operator/gate2_when_ready.py` is the durable gate: it polls
+   `gemini-3.5-flash` health and, on a clean **5/5**, auto-runs the inverter solve on 3.5 and banks it
+   `source:"agent"` (so item 1 + the inverter half of item 2 are one command). For a bare health check only,
+   its `health()` fn pings 5×. **Clean 5/5 = green light; below that, wait.**
+2. **3.5 re-capture for the $5k prize** (the prize names *Gemini 3.5 computer-use*). Inverter: handled by
+   `gate2_when_ready.py` above. Then ideally the full ladder on 3.5:
+   `GEMINI_MODEL=gemini-3.5-flash AUTO_SAFETY=proceed python operator/gate_agent.py` (confirm the exact
+   prize-named 3.5 computer-use model id — we only had `gemini-3.5-flash` wired). **If still storming:**
+   `gemini-2.5-computer-use-preview-10-2025` is the proven fallback (the ladder already ran on it) — and
+   raise eligibility (2.5-cu vs 3.5) with a Google/sponsor organizer.
+3. **Agent-solve RELAY_NAND** so the WHOLE library is `source:"agent"` (clean "the agent learned *every* skill"
+   story; the storm/2.5-fallback mess goes in the struggles section, not the live pitch). It's the only
+   `reference` skill left (it's setup). ⚠️ Needs a small runner — extend `gate_agent.py`'s `GATES` with a
+   `RELAY_NAND` entry (query: *NAND from 2 relays — RELAY-OFF=AND, RELAY-ON=NOT, wire the V power terminal*;
+   `place('relay')` is supported), reach level 0 on a fresh board, same referee→synth→validate→bank flow.
+   Relay construction is more complex/flaky than the logic gates — budget rehearsal time; **if it won't go
+   reliably, RELAY_NAND can STAY `reference`** (it's setup, not headline — the 4 agent-sourced logic gates
+   already carry the story).
+4. **LIVE COLD-SOLVE as a demo beat (NOT new code — the existing proven loop, run live):** on stage the agent
+   solves a gate from **perceive → place → wire → referee PASS → synthesize → bank**, watched in real time.
+   **Command:** `GEMINI_MODEL=<model> GEMINI_LADDER=AND AUTO_SAFETY=proceed python operator/gate_agent.py`
+   — it reaches the AND level via *other* banked skills, then the agent solves AND **fresh from perception**
+   (it never loads `skill_AND`, so every run is a genuine cold solve). **Gate choice:** **AND is the sweet
+   spot** — shows real reasoning (AND = NOT(NAND)) but only ~6 actions, so it's reliable live; **INV** is the
+   safest fallback (4 actions) if the endpoint is flaky; **XOR** is the showstopper (~10 actions) only if the
+   endpoint is rock-solid. To make "hasn't seen it" airtight, optionally `rm operator/skills/skill_AND.py`
+   right before (the loop re-banks it on success). **Rehearse it cold in the morning** to learn its timing +
+   failure modes. **Safety net if it flakes live:** the deterministic revert demo (`probe/demo_dryrun.py`,
+   no endpoint needed) is the fallback beat — green→red→green never depends on the network.
+
+---
+
 ## ✅ PIN-DRAG PROBE — RESOLVED. DECISION: **COMMIT NANDGAME** (tap-tap wiring + drag placement)
 
 The load-bearing risk (Gemini computer-use drag reliability on small pin targets) is **resolved**, and better than hoped: **NandGame wiring does not need drag at all** — it natively supports **click-to-wire** ("Tap or drag the triangle"). Clicks are far more reliable than drags.
@@ -315,11 +351,13 @@ A discarded "warmup" compose absorbs a one-off first-compose-after-chain settle 
 
 ## NEXT — DEMO PREP (tomorrow AM = EXECUTION, not rediscovery)
 All gates ✅ (Gate-1 referee, Gate-2 semantic wiring, Gate-3 synthesis, library/Atlas, composition, agent
-ladder, revert). Remaining work is the dashboard + getting demo-ready. In order:
+ladder, revert). **Status: dashboard ✅ · full dry-run ✅ · morning-capture [AM, endpoint-gated] · 1-min video
+[pending AM] · rehearsal [AM].** In order:
 
-0. **⚠️ RESOLVE the model/prize-framing decision FIRST** (see the OPEN DECISION block at the top): verify $5k
-   Gemini-prize eligibility for 2.5-computer-use vs 3.5; if 3.5 has recovered, re-capture the inverter solve on
-   3.5 for clean framing. This gates how the agent-solve story is pitched — settle it before rehearsing.
+0. **⚠️ MORNING CAPTURE SESSION FIRST** — see the **🌅 block at the top**: re-poll endpoint health → 3.5 prize
+   re-capture (or 2.5 fallback + raise eligibility with an organizer) → agent-solve RELAY_NAND → wire the live
+   cold-solve beat. All endpoint-gated; do them together in one healthy window. Settle the model/prize framing
+   before rehearsing the pitch.
 
 1. ✅ **Minimal 3-readout dashboard — BUILT** (`operator/dashboard.py`, stdlib-only, BARE). Three readouts:
    (1) skills-banked counter split agent/reference (**4 agent / 1 reference**); (2) STEPS-TO-SUCCESS — actions
