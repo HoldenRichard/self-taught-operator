@@ -52,8 +52,11 @@ NAMED_CONNECTORS_JS = r"""
     const txt = (c.textContent || '').trim().replace(/[^a-zA-Z0-9]/g, '');
     out[(its.length === 1) ? 'Input' : ('Input_' + (txt || i))] = { pos: ctr(c, 'output'), role: 'output' };
   });
-  const ot = document.querySelector('.output-node .input-connector');
-  if (ot) out['Output'] = { pos: ctr(ot, 'input'), role: 'input' };
+  const ots = Array.from(document.querySelectorAll('.output-node .input-connector')).filter(c => c.getBoundingClientRect().width > 0);
+  ots.forEach((c, i) => {
+    const txt = (c.textContent || '').trim().replace(/[^a-zA-Z0-9]/g, '');
+    out[(ots.length === 1) ? 'Output' : ('Output_' + (txt || i))] = { pos: ctr(c, 'input'), role: 'input' };
+  });
   const placed = Array.from(document.querySelectorAll('.diagram-node')).filter(n =>
     !n.closest('.toolbox') && !n.closest('[class*=palette]') &&
     !n.classList.contains('input-node') && !n.classList.contains('output-node') &&
@@ -79,8 +82,8 @@ NAMED_CONNECTORS_JS = r"""
 
 
 class ZoomSnapComputer(PlaywrightComputer):
-    def __init__(self, initial_url="https://nandgame.com", highlight_mouse=True, zoom=ZOOM):
-        super().__init__(screen_size=VIEWPORT, initial_url=initial_url, highlight_mouse=highlight_mouse)
+    def __init__(self, initial_url="https://nandgame.com", highlight_mouse=True, zoom=ZOOM, viewport=VIEWPORT):
+        super().__init__(screen_size=viewport, initial_url=initial_url, highlight_mouse=highlight_mouse)
         self._zoom = zoom
         self._snap_log = []
 
@@ -94,6 +97,12 @@ class ZoomSnapComputer(PlaywrightComputer):
     def apply_zoom(self):
         self._page.evaluate(f"document.documentElement.style.zoom = '{self._zoom}';")
         self._page.wait_for_timeout(150)
+
+    def set_zoom(self, z):
+        """Change the zoom mid-session (no reload). Use a smaller zoom for many-component levels so all
+        gates fit one viewport; keep the larger zoom for relay setup + any Gemini-perception steps."""
+        self._zoom = z
+        self.apply_zoom()
 
     def connector_points(self):
         try:
@@ -215,7 +224,15 @@ class ZoomSnapComputer(PlaywrightComputer):
             self._record({"op": "place", "component": component, "bound": None})
             return None
         n = len(bases_before)
-        _drag(pg, item[0], item[1], 720 + n * 300, 500)   # spread placements; positions read back, not hardcoded in skill
+        # Positions are read back, never baked into the skill. A drop lands at ~drop*zoom (NandGame CSS-zoom
+        # offset), so we target a LANDED position inside the canvas and drop at landed/zoom. Relays are wide
+        # (proven 1-D positions); logic gates go in a 3-column grid with wide spacing so 5-6 wire reliably.
+        Z = self._zoom
+        if "relay" in component.lower():
+            lx, ly = 1008 + n * 420, 700
+        else:
+            lx, ly = 1000 + n * 300, 560        # single row (strictly left->right for stable naming), wide spacing
+        _drag(pg, item[0], item[1], lx / Z, ly / Z)
         _cancel_armed(pg)
         after = self._named_connectors()
         new = [k.split(".")[0] for k in after if "." in k and k.split(".")[0] not in bases_before]
@@ -254,16 +271,15 @@ def _center(pg, sel, inner=None):
       return r.width? [Math.round(r.x+r.width/2),Math.round(r.y+r.height/2)] : null;}""", [sel, inner])
 
 def toolbox_item(pg, type_substr):
-    """Center of a draggable toolbox component matching a class/text substring (e.g. 'RELAY-ON', 'nand')."""
+    """Center of a draggable toolbox component. Prefers an EXACT class-token match (gates carry a clean type
+    class: NAND/INV/AND/OR — so 'and' won't grab 'nand'); falls back to a class/text substring (relays etc.)."""
     return pg.evaluate("""(t)=>{
+      const T=t.toUpperCase();
       const cands = Array.from(document.querySelectorAll('.toolbox .diagram-node, .palette-nodetype, [class*=palette] .diagram-node, .diagram-node.free-node'));
-      for (const n of cands){
-        const cls=(n.getAttribute('class')||'').toUpperCase(), txt=(n.textContent||'').toUpperCase();
-        if (cls.includes(t.toUpperCase()) || txt.includes(t.toUpperCase())){
-          const box = n.querySelector('.relay-box') || n; const r=box.getBoundingClientRect();
-          return [Math.round(r.x+r.width/2), Math.round(r.y+r.height/2)];
-        }
-      } return null;}""", type_substr)
+      const ctr = n => { const box=n.querySelector('.relay-box')||n; const r=box.getBoundingClientRect(); return [Math.round(r.x+r.width/2), Math.round(r.y+r.height/2)]; };
+      for (const n of cands){ if ((n.getAttribute('class')||'').toUpperCase().split(/\\s+/).includes(T)) return ctr(n); }
+      for (const n of cands){ const c=(n.getAttribute('class')||'').toUpperCase(), x=(n.textContent||'').toUpperCase(); if (c.includes(T)||x.includes(T)) return ctr(n); }
+      return null;}""", type_substr)
 
 def terminal(pg, which):
     return _center(pg, f'.input-node .output-connector.{which}', 'circle.connector-circle')
