@@ -4,6 +4,25 @@
 
 ---
 
+## ⚠️ OPEN DECISION (tomorrow AM, UNRESOLVED) — MODEL / PRIZE FRAMING
+The agent ladder (INV/AND/OR/XOR, all `source:"agent"`) was captured on **`gemini-2.5-computer-use-preview-10-2025`**
+because `gemini-3.5-flash` stormed (503 "high demand") the entire build. This is a real OPEN question for
+tomorrow, **NOT resolved tonight**:
+- **(a) Prize eligibility — VERIFY FIRST.** The **$5k Gemini prize names "Gemini 3.5 computer-use" specifically.**
+  We captured on the **2.5** computer-use model. Before leaning on the agent-ladder story *for that prize*,
+  confirm with the rules / an organizer whether 2.5-computer-use solves qualify, or whether the prize framing
+  must be on 3.5. (Confirm the exact prize-named 3.5 model id too — we only had `gemini-3.5-flash` wired, which
+  stormed; the prize may name a distinct `gemini-3.5-computer-use` variant.)
+- **(b) Clean-framing fallback.** If `gemini-3.5-flash` (or the prize-named 3.5 computer-use model) **recovers
+  before the demo, re-capture at least the inverter solve on 3.5** — one genuine 3.5 solve keeps the prize
+  framing clean while the rest of the ladder stays on 2.5-computer-use. Run:
+  `GEMINI_MODEL=<3.5-computer-use-id> AUTO_SAFETY=proceed python operator/gate2_runner.py` (banks `skill_INV`
+  source:agent from the fresh 3.5 solve, replacing the 2.5 one). Check endpoint health first (it stormed all day).
+- **The self-taught THESIS is model-agnostic and already proven** (operate→verify→synthesize→bank→retrieve→compose,
+  + revert). This flag is *purely* about which prize track the agent-solve evidence can be framed for.
+
+---
+
 ## ✅ PIN-DRAG PROBE — RESOLVED. DECISION: **COMMIT NANDGAME** (tap-tap wiring + drag placement)
 
 The load-bearing risk (Gemini computer-use drag reliability on small pin targets) is **resolved**, and better than hoped: **NandGame wiring does not need drag at all** — it natively supports **click-to-wire** ("Tap or drag the triangle"). Clicks are far more reliable than drags.
@@ -274,21 +293,47 @@ Voyage-free in the loop (2 Voyage calls total). Raw log: `probe/revert.log`. Run
 A discarded "warmup" compose absorbs a one-off first-compose-after-chain settle flake (tally is then clean 3/3/3).
 
 ## CURRENT STATE (one-glance, for resume)
-- **Library (`operator/skills/registry.json`):** INV, AND, OR, XOR = `source:"agent"` (genuinely Gemini-solved);
-  RELAY_NAND = `source:"reference"` (setup only). All also embedded in Atlas (`selftaught_operator.skills`,
-  `skill_vec` index) + the local store. **Re-sync Atlas to the agent skills before a live Atlas demo:**
-  `python operator/library.py sync` (the descriptions are unchanged so retrieval already returns the right
-  names, but the stored `source` field is otherwise stale).
-- **Endpoint:** `gemini-3.5-flash` storms; USE `gemini-2.5-computer-use-preview-10-2025` (set `GEMINI_MODEL`).
+- **All gates DONE & committed.** Technical project complete; only the dashboard + demo polish remain (below).
+- **Library (`operator/skills/registry.json`):** INV, AND, OR, XOR = `source:"agent"` (genuinely Gemini-solved,
+  verified in registry); RELAY_NAND = `source:"reference"` (setup only). All also embedded in Atlas
+  (`selftaught_operator.skills`, `skill_vec` index) + the local store. **Re-sync Atlas to the agent skills before
+  a live Atlas demo:** `python operator/library.py sync` (descriptions unchanged so retrieval already returns the
+  right names, but the stored `source` field is otherwise stale).
+- **Endpoint:** `gemini-3.5-flash` stormed all day (503); USE `gemini-2.5-computer-use-preview-10-2025` (set
+  `GEMINI_MODEL`). **See the ⚠️ OPEN DECISION at the top** — the $5k Gemini prize names 3.5 computer-use, so the
+  prize framing is unresolved until verified tomorrow.
 - **Proven gates:** Gate-1 referee, Gate-2 semantic wiring, Gate-3 synthesis (empty-diff→fills), library/Atlas
-  $vectorSearch, composition (half-adder generative), agent ladder (INV/AND/OR/XOR), revert (load-bearing).
-- **Git:** baseline → machinery → library → composition → first agent solve → full ladder → (revert next commit).
+  $vectorSearch, composition (half-adder generative), agent ladder (INV/AND/OR/XOR), revert (load-bearing 3/3/3).
+- **Git (9 commits tonight):** `466c7f9` baseline → `64958d5` Gate-3 swap → `a4d1f39` library → `4c648dd` Atlas
+  live → `4ca0c9a`/`1a5af9a` composition → `0eaccec` first agent solve → `b42b865` gate-ladder runner →
+  `9f05f02` full ladder agent-taught → `fb206e1` revert PROVEN + STATUS finalized. Secrets clean (`.env`
+  gitignored, verified absent from every tracked file).
 
-## NEXT  (Gate 1 ✅, Gate 2 ✅, Gate 3 ✅, library/Atlas ✅, composition ✅, agent ladder ✅, revert ✅)
-1. **Minimal 3-readout dashboard (only remaining build):** skills-banked counter (split agent vs reference),
-   steps-to-success line, referee lamp. Reads `operator/skills/registry.json` + a run log.
-2. **Optional polish:** agent-source RELAY_NAND too (currently reference; it's setup, not headline); re-sync
-   Atlas to the agent skills for a live Atlas demo (`python operator/library.py sync`); a scripted end-to-end
-   demo run (probe → gate1 → gate3_proof → agent ladder → compose half-adder → revert).
-- Guards (still binding): never log a model refusal/error as a task failure; only referee-verified skills get
+## NEXT — DEMO PREP (tomorrow AM = EXECUTION, not rediscovery)
+All gates ✅ (Gate-1 referee, Gate-2 semantic wiring, Gate-3 synthesis, library/Atlas, composition, agent
+ladder, revert). Remaining work is the dashboard + getting demo-ready. In order:
+
+0. **⚠️ RESOLVE the model/prize-framing decision FIRST** (see the OPEN DECISION block at the top): verify $5k
+   Gemini-prize eligibility for 2.5-computer-use vs 3.5; if 3.5 has recovered, re-capture the inverter solve on
+   3.5 for clean framing. This gates how the agent-solve story is pitched — settle it before rehearsing.
+
+1. **Minimal 3-readout dashboard (only remaining BUILD):** skills-banked counter (split agent vs reference =
+   4 agent / 1 reference), steps-to-success line, referee lamp. Reads `operator/skills/registry.json` + a run log.
+
+2. **Pre-warm verification (do RIGHT BEFORE demoing — nothing cold on stage):**
+   - Endpoint health check (it stormed all day) — confirm the chosen `GEMINI_MODEL` is reachable before any live solve.
+   - `python operator/library.py sync` — refresh Atlas so the stored `source` field shows agent (descriptions
+     already retrieve correctly; this just makes the live Atlas view match the agent story).
+   - Smoke the two load-bearing demos so they're hot, not rediscovered: `python probe/compose_halfadder.py`
+     (half-adder → referee PASS) and `python probe/revert_harness.py` (PASS→FAIL→PASS 3/3/3). Both endpoint-free.
+
+3. **1-minute video:** the self-taught arc — Gemini decides-and-names → referee PASS → skill synthesized to disk
+   (empty-diff→fills) → banked to Atlas → retrieved → half-adder composed from skills never banked together →
+   revert (delete skill_XOR ⇒ PASS becomes FAIL). Lead with the thesis: *the agent teaches itself, measurably.*
+
+4. **Rehearsal:** dry-run the narrative end-to-end on the clock (probe → gate1 → gate3_proof → agent ladder →
+   compose half-adder → revert → dashboard), timed, with the pre-warm done. Rehearse the model-framing answer (#0).
+
+- **Optional polish (not headline):** agent-source RELAY_NAND too (currently reference; it's only setup).
+- **Guards (still binding):** never log a model refusal/error as a task failure; only referee-verified skills get
   banked; secrets only in gitignored `.env`; the honesty line (agent operates; system only makes motor acts land).
