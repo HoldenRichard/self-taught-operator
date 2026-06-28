@@ -261,21 +261,34 @@ retrieved skills.
   disclosed pre-warm (same swap as skill_INV). The retrieve+invoke COMPOSITION mechanism is the generative proof.
 - **Run it:** `python probe/build_gates.py` (bank AND/OR/XOR), then `python probe/compose_halfadder.py`.
 
-## NEXT  (Gate 1 ✅, Gate 2 ✅, Gate 3 synthesis ✅, library/Atlas ✅, composition ✅, agent INV ✅)
-1. **AGENT LADDER (in progress, window-dependent):** finish agent-sourcing AND/OR/XOR via
-   `operator/gate_agent.py` so INV/AND/OR/XOR are all `source:"agent"`. Capture while a Gemini model is
-   responsive (use `gemini-2.5-computer-use-preview-10-2025` — gemini-3.5-flash is the one that storms).
-2. **FREEZE-MUTATE-REVERT harness (demo climax; window-INDEPENDENT — no live endpoint needed).** Prove the
-   library is LOAD-BEARING. Use the half-adder composition (it retrieves skill_XOR + skill_AND). FROZEN SEED:
-   reach HALFADD the same way, deterministic skills, run each config ≥3×, log the RAW referee verdict:
-   - intact library → `compose` → **PASS**
-   - DELETE a banked skill (skill_XOR: remove its `skill_*.py` + registry entry + library-store record) →
-     `compose` → retrieval returns the wrong skill → **FAIL**
-   - RESTORE → `compose` → **PASS** (recover)
-   To dodge the Voyage 3-req/min cap: pre-embed the 2 fixed sub-goal queries ONCE and pass a cached-vector
-   retrieve fn into `compose(spec, env, retrieve=...)`; use the LOCAL store
-   (`operator/skills/library_local.json`) for instant delete/restore. Tier-2 revert = removing a SKILL flips
-   the operator PASS→FAIL→PASS. Emit the raw log (≥3 each of intact-PASS / deleted-FAIL / restored-PASS).
-3. **Minimal 3-readout dashboard:** skills-banked counter (split agent vs reference), steps-to-success, referee lamp.
+## ✅ FREEZE-MUTATE-REVERT — PROVEN: the skill library is load-bearing (Tier-2 revert)
+`probe/revert_harness.py` — FROZEN SEED (reach HALFADD the same way via the agent-taught skills; deterministic
+composition), run each library configuration ≥3×; ONLY the library changes between runs:
+  - intact → compose the half-adder → referee **PASS ×3**
+  - DELETE `skill_XOR` from the library → retrieval returns the next-best (`OR`) for the sum → wrong circuit
+    → referee **FAIL ×3**  (raw log shows `sum<-OR` instead of `sum<-XOR` — the smoking gun)
+  - RESTORE `skill_XOR` → compose → referee **PASS ×3** (recover)
+PASS↔FAIL flips ONLY with the library mutation ⇒ the banked skill measurably IS the operator's capability.
+Cached query vectors + the local store (`operator/skills/library_local.json`) make delete/restore instant +
+Voyage-free in the loop (2 Voyage calls total). Raw log: `probe/revert.log`. Run: `python probe/revert_harness.py`.
+A discarded "warmup" compose absorbs a one-off first-compose-after-chain settle flake (tally is then clean 3/3/3).
+
+## CURRENT STATE (one-glance, for resume)
+- **Library (`operator/skills/registry.json`):** INV, AND, OR, XOR = `source:"agent"` (genuinely Gemini-solved);
+  RELAY_NAND = `source:"reference"` (setup only). All also embedded in Atlas (`selftaught_operator.skills`,
+  `skill_vec` index) + the local store. **Re-sync Atlas to the agent skills before a live Atlas demo:**
+  `python operator/library.py sync` (the descriptions are unchanged so retrieval already returns the right
+  names, but the stored `source` field is otherwise stale).
+- **Endpoint:** `gemini-3.5-flash` storms; USE `gemini-2.5-computer-use-preview-10-2025` (set `GEMINI_MODEL`).
+- **Proven gates:** Gate-1 referee, Gate-2 semantic wiring, Gate-3 synthesis (empty-diff→fills), library/Atlas
+  $vectorSearch, composition (half-adder generative), agent ladder (INV/AND/OR/XOR), revert (load-bearing).
+- **Git:** baseline → machinery → library → composition → first agent solve → full ladder → (revert next commit).
+
+## NEXT  (Gate 1 ✅, Gate 2 ✅, Gate 3 ✅, library/Atlas ✅, composition ✅, agent ladder ✅, revert ✅)
+1. **Minimal 3-readout dashboard (only remaining build):** skills-banked counter (split agent vs reference),
+   steps-to-success line, referee lamp. Reads `operator/skills/registry.json` + a run log.
+2. **Optional polish:** agent-source RELAY_NAND too (currently reference; it's setup, not headline); re-sync
+   Atlas to the agent skills for a live Atlas demo (`python operator/library.py sync`); a scripted end-to-end
+   demo run (probe → gate1 → gate3_proof → agent ladder → compose half-adder → revert).
 - Guards (still binding): never log a model refusal/error as a task failure; only referee-verified skills get
   banked; secrets only in gitignored `.env`; the honesty line (agent operates; system only makes motor acts land).

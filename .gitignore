@@ -22,6 +22,7 @@ venv/
 probe/*.png
 probe/*.jpg
 probe/*.jpeg
+probe/*.log
 
 # === Local library store (regenerable embeddings cache; Atlas is the real backend) ===
 operator/skills/library_local.json
