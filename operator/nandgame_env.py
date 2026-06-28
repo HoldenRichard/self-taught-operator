@@ -120,10 +120,27 @@ class ZoomSnapComputer(PlaywrightComputer):
         sx, sy = self._snap(x, y)
         return super().click_at(sx, sy)
 
+    def _placed_bases(self):
+        return set(k.split(".")[0] for k in self._named_connectors() if "." in k)
+
     def drag_and_drop(self, x, y, destination_x, destination_y):
+        # If the AGENT drags a component onto the canvas during a recording, capture it SEMANTICALLY:
+        # the component TYPE only (e.g. "nand") — never the literal drop pixels. The synthesized skill
+        # then places by type and picks the position at run time, identical to the reference pipeline,
+        # so the skill stays parameterized / layout-robust (not a coordinate replay).
+        recording = getattr(self, "_traj", None) is not None
+        before = self._placed_bases() if recording else set()
         sx, sy = self._snap(x, y)
         dx, dy = self._snap(destination_x, destination_y)
-        return super().drag_and_drop(sx, sy, dx, dy)
+        res = super().drag_and_drop(sx, sy, dx, dy)
+        if recording:
+            self._page.wait_for_timeout(150)
+            new = [b for b in self._placed_bases() if b not in before]
+            if new:
+                base = sorted(new)[0]
+                self._record({"op": "place", "component": base.rstrip("0123456789"),
+                              "bound": base, "via": "agent-drag"})
+        return res
 
     # ---------- SEMANTIC WIRING (custom agent tools) ----------
     # The agent NAMES the two connectors to wire (it reads/decides which from the board); the
@@ -215,6 +232,9 @@ class ZoomSnapComputer(PlaywrightComputer):
     def start_recording(self, task, start_level, source="agent"):
         # source: "agent" (a genuine model solve — what we demo) or "reference" (probe scaffolding).
         self._traj = {"task": task, "start_level": start_level, "source": source, "actions": []}
+
+    def stop_recording(self):
+        self._traj = None   # e.g. before a validation cold-execute, so it doesn't pollute the trajectory
 
     def _record(self, action):
         t = getattr(self, "_traj", None)

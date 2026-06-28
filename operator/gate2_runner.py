@@ -54,6 +54,40 @@ def in_frame_check(page, label):
 def terminal_inv_input(page):
     return page.evaluate("""()=>{const e=document.querySelector('.input-node .output-connector circle.connector-circle'); if(!e)return null; const r=e.getBoundingClientRect(); return [Math.round(r.x+r.width/2),Math.round(r.y+r.height/2)];}""")
 
+def _synthesize_demo_skill(bc, page, verdict):
+    """CONDITION #1: turn GEMINI'S OWN referee-verified INV trajectory into the banked demo skill_INV.
+    Synthesize to a temp dir, VALIDATE by cold-executing it (must referee-PASS), and only THEN promote it
+    over the reference skill_INV. On any shortfall the reference skill is left intact (never bank junk)."""
+    import shutil, tempfile
+    from trajectory import save_trajectory
+    traj = bc.trajectory()
+    print("\n=== AGENT TRAJECTORY (Gemini's own solve) ===")
+    print(json.dumps(traj, indent=2))
+    bc.stop_recording()   # freeze it — the validation cold-execute below must NOT pollute the trajectory
+    actions = (traj or {}).get("actions", [])
+    placed = [a for a in actions if a["op"] == "place"]
+    conns = [a for a in actions if a["op"] == "connect" and a.get("ok")]
+    if not placed or not conns:
+        print("incomplete agent trajectory (need >=1 place and >=1 connect) — NOT synthesizing; "
+              "reference skill_INV left intact."); return
+    traj["passed"] = True; traj["verdict"] = verdict.status
+    tmp = tempfile.mkdtemp()
+    tskill = synth.synthesize(traj, skills_dir=tmp)
+    print("synthesized agent skill (temp) ->", tskill)
+    # VALIDATE: cold-execute the generated skill on an empty INV canvas -> real referee PASS
+    dismiss_verdict_popup(page); dismiss_popup(page); clear_canvas(page); page.wait_for_timeout(300)
+    vv = synth.run_skill(tskill, bc)
+    print("VALIDATE agent skill_INV -> referee:", vv.status, "| passed:", vv.passed)
+    if not vv.passed:
+        print("agent skill did NOT validate — NOT banked (honesty); reference skill_INV unchanged."); return
+    final = _os.path.join(_os.path.dirname(__file__), "skills", "skill_INV.py")
+    shutil.copyfile(tskill, final)
+    save_trajectory(traj, verdict)     # operator/trajectories/INV.json now = Gemini's OWN trajectory
+    synth.bank(traj, final)            # registry INV -> source: agent
+    print("BANKED agent-sourced skill_INV (source: agent) — condition #1 fulfilled.")
+    print("SWAP_COMPLETE")
+
+
 def main():
     env = ZoomSnapComputer(initial_url="https://nandgame.com", highlight_mouse=True)
     with env as bc:
@@ -82,6 +116,9 @@ def main():
         # VERIFY the target level is fully in-frame before handing to Gemini
         in_frame_check(page, "before_gemini")
 
+        # RECORD Gemini's OWN solve from here on (the skill-based setup above is deliberately NOT recorded).
+        bc.start_recording("INV", "INV", source="agent")
+
         # HAND OFF TO GEMINI (snapping is automatic via ZoomSnapComputer.click_at)
         print("\n=== GEMINI AGENT START (INVERT, zoom+snap) ===")
         agent = BrowserAgent(browser_computer=bc, query=INV_QUERY, model_name="gemini-3.5-flash")
@@ -103,6 +140,7 @@ def main():
             print("Outcome: COULD-NOT-ATTEMPT (error before loop) — NOT a failed solve.")
         elif verdict.passed:
             print("Outcome: PASS ✅ end-to-end loop proven (Gemini saw -> placed -> wired -> referee PASS).")
+            _synthesize_demo_skill(bc, page, verdict)
         elif not ended_cleanly:
             print("Outcome: COULD-NOT-COMPLETE — loop ended without a final answer (API/transport "
                   "failure, e.g. 503/504). NOT a failed solve; do NOT bank. Retry when endpoint recovers.")
