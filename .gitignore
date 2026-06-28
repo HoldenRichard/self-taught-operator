@@ -1,0 +1,27 @@
+# === Vendored harness — its OWN git repo, an 800M venv, and the runtime API key live here ===
+computer-use-preview/
+
+# === Secrets (never commit) ===
+.env
+*.env
+.env.*
+*.key
+secrets*.json
+
+# === Python ===
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# === Local tooling / session state ===
+.claude/
+
+# === Bulky/regenerable probe artifacts (keep .py and .json) ===
+probe/*.png
+probe/*.jpg
+probe/*.jpeg
+
+# === OS ===
+.DS_Store

@@ -1,0 +1,2 @@
+# Generated skills land here at runtime (skill_<TASK>.py + registry.json).
+# Empty in the baseline commit — the empty-diff -> fills proof depends on this.

@@ -1,0 +1,55 @@
+{
+ "tag": "t1=OFF t2=ON swap1=False swap2=False",
+ "conns": [
+  {
+   "source": {
+    "nodeId": "input",
+    "connectorId": "1"
+   },
+   "target": {
+    "nodeId": "0",
+    "connectorId": "0"
+   }
+  },
+  {
+   "source": {
+    "nodeId": "input",
+    "connectorId": "0"
+   },
+   "target": {
+    "nodeId": "0",
+    "connectorId": "1"
+   }
+  },
+  {
+   "source": {
+    "nodeId": "0",
+    "connectorId": "0"
+   },
+   "target": {
+    "nodeId": "1",
+    "connectorId": "0"
+   }
+  },
+  {
+   "source": {
+    "nodeId": "input",
+    "connectorId": "2"
+   },
+   "target": {
+    "nodeId": "1",
+    "connectorId": "1"
+   }
+  },
+  {
+   "source": {
+    "nodeId": "1",
+    "connectorId": "0"
+   },
+   "target": {
+    "nodeId": "output",
+    "connectorId": "0"
+   }
+  }
+ ]
+}
