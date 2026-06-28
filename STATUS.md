@@ -18,6 +18,10 @@ tomorrow, **NOT resolved tonight**:
   framing clean while the rest of the ladder stays on 2.5-computer-use. Run:
   `GEMINI_MODEL=<3.5-computer-use-id> AUTO_SAFETY=proceed python operator/gate2_runner.py` (banks `skill_INV`
   source:agent from the fresh 3.5 solve, replacing the 2.5 one). Check endpoint health first (it stormed all day).
+  - **RECHECK late Sat night (~2026-06-27, venue empty):** still storming — two polls 1/5 then 0/5
+    (504 DEADLINE_EXCEEDED / 503 "high demand" / 499). Did NOT burn into it (per the rule). 2.5-cu ladder
+    stands. Health probe: `python <scratch>/health35.py` (5× `generate_content` ping to `gemini-3.5-flash`;
+    a clean **5/5** is the green light to launch the re-capture). Re-poll tomorrow AM when traffic is lower.
 - **The self-taught THESIS is model-agnostic and already proven** (operate→verify→synthesize→bank→retrieve→compose,
   + revert). This flag is *purely* about which prize track the agent-solve evidence can be framed for.
 
@@ -317,8 +321,13 @@ ladder, revert). Remaining work is the dashboard + getting demo-ready. In order:
    Gemini-prize eligibility for 2.5-computer-use vs 3.5; if 3.5 has recovered, re-capture the inverter solve on
    3.5 for clean framing. This gates how the agent-solve story is pitched — settle it before rehearsing.
 
-1. **Minimal 3-readout dashboard (only remaining BUILD):** skills-banked counter (split agent vs reference =
-   4 agent / 1 reference), steps-to-success line, referee lamp. Reads `operator/skills/registry.json` + a run log.
+1. ✅ **Minimal 3-readout dashboard — BUILT** (`operator/dashboard.py`, stdlib-only, BARE). Three readouts:
+   (1) skills-banked counter split agent/reference (**4 agent / 1 reference**), (2) steps-to-success line —
+   actions per solve from each trajectory (INV 4 → AND 6 → OR 8 → XOR 10; the agent ladder ascends), (3) referee
+   lamp — reads a run log's last STRUCTURED verdict (`referee/outcome/verdict: PASS|FAIL`, not prose), else the
+   banked invariant (all PASS → green). Run: `python operator/dashboard.py` (`--log probe/revert.log` makes the
+   lamp reflect that run — green PASS; `--watch` refreshes every 2s). For the revert demo, point `--log` at the
+   live log and the lamp flips RED on the XOR-deleted FAIL.
 
 2. **Pre-warm verification (do RIGHT BEFORE demoing — nothing cold on stage):**
    - Endpoint health check (it stormed all day) — confirm the chosen `GEMINI_MODEL` is reachable before any live solve.
