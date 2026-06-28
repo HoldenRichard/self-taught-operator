@@ -7,8 +7,7 @@
     {
       "op": "place",
       "component": "nand",
-      "bound": "nand1",
-      "via": "agent-drag"
+      "bound": "nand1"
     },
     {
       "op": "connect",

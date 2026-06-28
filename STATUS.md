@@ -4,10 +4,14 @@
 
 ---
 
-## ⚠️ OPEN DECISION (tomorrow AM, UNRESOLVED) — MODEL / PRIZE FRAMING
-The agent ladder (INV/AND/OR/XOR, all `source:"agent"`) was captured on **`gemini-2.5-computer-use-preview-10-2025`**
-because `gemini-3.5-flash` stormed (503 "high demand") the entire build. This is a real OPEN question for
-tomorrow, **NOT resolved tonight**:
+## ✅ RESOLVED (AM 2026-06-28) — MODEL / PRIZE FRAMING
+**RESOLVED two ways this morning:** (1) the official hackathon guide names **"Computer Use in Gemini 3.5 Flash"**
+as a qualifying feature for the $5k prize → **`gemini-3.5-flash` computer-use IS the prize model** (no separate
+variant to chase); (2) we **captured a genuine inverter solve on `gemini-3.5-flash`** this AM (endpoint briefly
+cleared) → referee PASS *through 2 mid-solve 503s* → **`skill_INV` re-banked `source:"agent"` on 3.5**
+(provenance: `probe/gate2_3.5_capture.log`, committed; shows `model=gemini-3.5-flash` + referee PASS). Theme =
+**Continual Learning via toolkit expansion**; sponsors Atlas + Voyage are first-place prizes too. Organizer
+confirmation of the exact prize model id stays a nice-to-have. Original open-question history kept below:
 - **(a) Prize eligibility — VERIFY FIRST.** The **$5k Gemini prize names "Gemini 3.5 computer-use" specifically.**
   We captured on the **2.5** computer-use model. Before leaning on the agent-ladder story *for that prize*,
   confirm with the rules / an organizer whether 2.5-computer-use solves qualify, or whether the prize framing
@@ -28,6 +32,11 @@ tomorrow, **NOT resolved tonight**:
 ---
 
 ## 🌅 MORNING CAPTURE SESSION — do FIRST, all in ONE healthy-endpoint window
+**AM PROGRESS (2026-06-28):** health re-poll **6/6 clean** on 3.5 (2.5-cu also reachable, 6/6) → **inverter
+captured on `gemini-3.5-flash` → `skill_INV` banked `source:agent`** ✓ (pushed through **2 mid-solve 503s** — the
+window is FLAPPY, not stably calm). Remaining: RELAY_NAND agent-solve (assessing — relay construction is the
+flaky one, needs 2 relay TYPES + V-power wiring) + live cold-solve wiring.
+
 Every item here needs a live Gemini computer-use endpoint, so batch them into a single clean window (AM = lower
 traffic). Last night the endpoint was storming (1/5 then 0/5); don't burn into anything below a clean ~5/5.
 

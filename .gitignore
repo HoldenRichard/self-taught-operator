@@ -23,6 +23,8 @@ probe/*.png
 probe/*.jpg
 probe/*.jpeg
 probe/*.log
+# KEEP: provenance of the genuine Gemini 3.5 Flash inverter solve (prize evidence — referee PASS, model line)
+!probe/gate2_3.5_capture.log
 
 # === Local library store (regenerable embeddings cache; Atlas is the real backend) ===
 operator/skills/library_local.json
